@@ -3,54 +3,44 @@ const fs = require('fs');
 
 const { Circle, Triangle, Square } = require("./lib/shapes");
 
-const questions = [{
-    type: 'list',
-    name: 'shape',
-    message: 'Select a shape:',
-    choices: ['Circle', 'Triangle', 'Square'],
-}, {
-    name: 'color',
-    message: 'Enter a background color:'
-}, {
-    type: 'input',
-    name: 'logoColor',
-    message: 'Enter the color for the text:',
-},
-{
-    type: 'input',
-    name: 'logoText',
-    message: 'Enter the text for the logo (up to 3 characters):',
-    validate: (value) => {
-        if (value.length <= 3) {
-            return true;
-        }
-        else
-            return 'Logo text should be up to 3 characters long.';
+function getInput() {
+    inquirer.prompt([{
+        name: 'text',
+        message: 'Enter 3 letters'
     },
-}
-]
+    {
+        name: 'textColor',
+        message: 'What color would you like the text to be?'
 
-// Prompt the user to select a shape
-inquirer.prompt(questions)
-    .then(({ shape, color, logoColor, logoText }) => {
+    },
+    {
+        name: 'shape',
+        type: 'list',
+        choices: ['Circle', 'Triangle', 'Rectangle'],
+        message: 'What shape would you like to use?'
+    },
+    {
+        name: 'shapeColor',
+        message: 'What color would you like the shape to be?'
+    }]).then((answer) => {
+        let shape;
 
-        let svg
-        switch (shape) {
-            case 'Circle':
-                svg = new Circle()
-                break;
-            case 'Triangle':
-                svg = new Triangle()
-                break;
-            default:
-                svg = new Square()
-        };
-svg.setColor(color);
-      
-
-        // Save the SVG document to a file
-        fs.writeFile("./logo.svg", svg.render(), ()=> {
-            
+        if (answer.shape === 'Circle') {
+            shape = new Circle(answer.text, answer.textColor, answer.shapeColor)
+        }
+        if (answer.shape === 'Triangle') {
+            shape = new Triangle(answer.text, answer.textColor, answer.shapeColor)
+        }
+        if (answer.shape === 'Rectangle') {
+            shape = new Rectangle(answer.text, answer.textColor, answer.shapeColor)
+        }
+        
+        fs.writeFile('./dist/logo.svg', shape.render(), (err, result) => {
+            if (err) throw err;
+            console.log('svg created!');
         })
     })
+}
+
+getInput()
 
